@@ -205,17 +205,27 @@ listFrame.ScrollBarThickness = 6
 listFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 listFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
--- Code viewer (script)
-local codeBox = Instance.new("TextBox", frame)
-codeBox.Size = UDim2.new(1, -230, 1, -130)
-codeBox.Position = UDim2.new(0, 220, 0, 70)
-codeBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+-- Container para código com scrollbar
+local codeScroll = Instance.new("ScrollingFrame", frame)
+codeScroll.Size = UDim2.new(1, -230, 1, -130)
+codeScroll.Position = UDim2.new(0, 220, 0, 70)
+codeScroll.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+codeScroll.BorderSizePixel = 0
+codeScroll.CanvasSize = UDim2.new(0, 0, 10, 0) -- altura grande para scroll
+codeScroll.ScrollBarThickness = 8
+codeScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+-- TextBox para mostrar código dentro do ScrollingFrame
+local codeBox = Instance.new("TextBox", codeScroll)
+codeBox.Size = UDim2.new(1, 0, 0, 600) -- altura fixa (pode ajustar)
+codeBox.Position = UDim2.new(0, 0, 0, 0)
+codeBox.BackgroundTransparency = 1
 codeBox.TextColor3 = Color3.fromRGB(180, 255, 180)
 codeBox.TextXAlignment = Enum.TextXAlignment.Left
 codeBox.TextYAlignment = Enum.TextYAlignment.Top
 codeBox.TextEditable = false
 codeBox.ClearTextOnFocus = false
-codeBox.TextWrapped = false
+codeBox.TextWrapped = true -- quebra de linha ativada
 codeBox.MultiLine = true
 codeBox.Font = Enum.Font.Code
 codeBox.TextSize = 13
