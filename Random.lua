@@ -13,7 +13,7 @@ frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 frame.BorderSizePixel = 0
 frame.AnchorPoint = Vector2.new(0.5, 0.5)
 frame.Active = true
-frame.Draggable = true
+-- frame.Draggable = true -- removido para drag customizado
 frame.Name = "MainFrame"
 
 -- UI Corner
@@ -31,7 +31,7 @@ shadow.ImageColor3 = Color3.new(0, 0, 0)
 shadow.ImageTransparency = 0.5
 shadow.ZIndex = 0
 
--- Title
+-- Title (barra para arrastar)
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundTransparency = 1
@@ -100,9 +100,7 @@ touchOnceButton.BackgroundColor3 = Color3.fromRGB(60, 120, 200)
 touchOnceButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 Instance.new("UICorner", touchOnceButton).CornerRadius = UDim.new(0, 8)
 
--- Touch Logic
-local looping = false
-
+-- Função para pegar a parte (continua usando loadstring, pode substituir se quiser)
 local function getPartFromPath(path)
 	local success, result = pcall(function()
 		return loadstring("return " .. path)()
@@ -114,6 +112,7 @@ local function getPartFromPath(path)
 end
 
 -- Loop
+local looping = false
 task.spawn(function()
 	while true do
 		task.wait(0.5)
@@ -158,7 +157,7 @@ touchOnceButton.MouseButton1Click:Connect(function()
 	local part
 
 	if input.Text == "" or input.Text == nil then
-		-- Toca a própria parte do jogador (exemplo: rootpart)
+		-- Se vazio, toca no próprio rootpart do jogador
 		part = root
 	else
 		part = getPartFromPath(input.Text)
@@ -171,5 +170,47 @@ touchOnceButton.MouseButton1Click:Connect(function()
 		status.Text = "Status: Touched once!"
 	else
 		status.Text = "Status: Invalid path or part not found"
+	end
+end)
+
+-- Dragging logic - só pelo título
+local UserInputService = game:GetService("UserInputService")
+
+local dragging = false
+local dragInput, mousePos, framePos
+
+local function update(input)
+	local delta = input.Position - mousePos
+	frame.Position = UDim2.new(
+		framePos.X.Scale,
+		framePos.X.Offset + delta.X,
+		framePos.Y.Scale,
+		framePos.Y.Offset + delta.Y
+	)
+end
+
+title.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		mousePos = input.Position
+		framePos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+title.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
 	end
 end)
