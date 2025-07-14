@@ -40,11 +40,27 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 20
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 
+-- Close Button
+local closeButton = Instance.new("TextButton", frame)
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -35, 0, 0)
+closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeButton.Text = "X"
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextSize = 20
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.AutoButtonColor = true
+Instance.new("UICorner", closeButton).CornerRadius = UDim.new(0, 6)
+
+closeButton.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
 -- Input Box
 local input = Instance.new("TextBox", frame)
 input.Size = UDim2.new(0.9, 0, 0, 30)
 input.Position = UDim2.new(0.05, 0, 0, 50)
-input.PlaceholderText = "Enter part path (e.g. workspace.Part)"
+input.PlaceholderText = "path"
 input.Font = Enum.Font.Gotham
 input.TextSize = 14
 input.TextColor3 = Color3.new(1, 1, 1)
@@ -62,16 +78,27 @@ status.TextSize = 14
 status.TextColor3 = Color3.fromRGB(200, 200, 200)
 status.Text = "Status: Idle"
 
--- Toggle Button
-local button = Instance.new("TextButton", frame)
-button.Size = UDim2.new(0.9, 0, 0, 40)
-button.Position = UDim2.new(0.05, 0, 0, 120)
-button.Text = "Start Touch Loop"
-button.Font = Enum.Font.GothamBold
-button.TextSize = 16
-button.BackgroundColor3 = Color3.fromRGB(75, 150, 75)
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+-- Start/Stop Toggle Button
+local toggleButton = Instance.new("TextButton", frame)
+toggleButton.Size = UDim2.new(0.9, -5, 0, 40)
+toggleButton.Position = UDim2.new(0.05, 0, 0, 120)
+toggleButton.Text = "Start Touch Loop"
+toggleButton.Font = Enum.Font.GothamBold
+toggleButton.TextSize = 16
+toggleButton.BackgroundColor3 = Color3.fromRGB(75, 150, 75)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(0, 8)
+
+-- Touch Once Button
+local touchOnceButton = Instance.new("TextButton", frame)
+touchOnceButton.Size = UDim2.new(0.9, 0, 0, 30)
+touchOnceButton.Position = UDim2.new(0.05, 0, 0, 170)
+touchOnceButton.Text = "Touch Once"
+touchOnceButton.Font = Enum.Font.GothamBold
+touchOnceButton.TextSize = 14
+touchOnceButton.BackgroundColor3 = Color3.fromRGB(60, 120, 200)
+touchOnceButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", touchOnceButton).CornerRadius = UDim.new(0, 8)
 
 -- Touch Logic
 local looping = false
@@ -104,8 +131,8 @@ task.spawn(function()
 	end
 end)
 
--- Botão de ativação
-button.MouseButton1Click:Connect(function()
+-- Toggle button click
+toggleButton.MouseButton1Click:Connect(function()
 	local part = getPartFromPath(input.Text)
 	if not part then
 		status.Text = "Status: Invalid path or part not found"
@@ -114,12 +141,35 @@ button.MouseButton1Click:Connect(function()
 
 	looping = not looping
 	if looping then
-		button.Text = "Stop Touch Loop"
-		button.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
+		toggleButton.Text = "Stop Touch Loop"
+		toggleButton.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
 		status.Text = "Status: Looping..."
 	else
-		button.Text = "Start Touch Loop"
-		button.BackgroundColor3 = Color3.fromRGB(75, 150, 75)
+		toggleButton.Text = "Start Touch Loop"
+		toggleButton.BackgroundColor3 = Color3.fromRGB(75, 150, 75)
 		status.Text = "Status: Idle"
+	end
+end)
+
+-- Touch Once button click
+touchOnceButton.MouseButton1Click:Connect(function()
+	local char = player.Character or player.CharacterAdded:Wait()
+	local root = char:FindFirstChild("HumanoidRootPart")
+	local part
+
+	if input.Text == "" or input.Text == nil then
+		-- Toca a própria parte do jogador (exemplo: rootpart)
+		part = root
+	else
+		part = getPartFromPath(input.Text)
+	end
+
+	if root and part then
+		firetouchinterest(root, part, 0)
+		task.wait(0.1)
+		firetouchinterest(root, part, 1)
+		status.Text = "Status: Touched once!"
+	else
+		status.Text = "Status: Invalid path or part not found"
 	end
 end)
