@@ -33,7 +33,7 @@ shadow.ZIndex = 0
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundTransparency = 1
-title.Text = "Touch Loop Tool"
+title.Text = "FireTouch Universal Script"
 title.Font = Enum.Font.GothamBold
 title.TextSize = 20
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -56,6 +56,7 @@ end)
 -- Input Box (Path)
 local input = Instance.new("TextBox", frame)
 input.Size = UDim2.new(0.9, 0, 0, 30)
+input.Text = ""
 input.Position = UDim2.new(0.05, 0, 0, 40)
 input.PlaceholderText = "path"
 input.Font = Enum.Font.Gotham
@@ -67,6 +68,7 @@ Instance.new("UICorner", input).CornerRadius = UDim.new(0, 8)
 
 -- Delay Box
 local delayBox = Instance.new("TextBox", frame)
+delayBox.Text = ""
 delayBox.Size = UDim2.new(0.4, 0, 0, 25)
 delayBox.Position = UDim2.new(0.05, 0, 0, 75)
 delayBox.PlaceholderText = "Delay (e.g. 0.5)"
