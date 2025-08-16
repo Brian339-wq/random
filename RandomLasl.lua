@@ -1,134 +1,107 @@
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local Version = 1.0 -- Começa na versão 1.0, aumenta +0.1 a cada update manual
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "ScriptGeneratorGui"
-screenGui.Parent = playerGui
-screenGui.ResetOnSpawn = false
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "StealGui"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 350, 0, 220)
-mainFrame.Position = UDim2.new(0.5, -175, 0.5, -110)
-mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-mainFrame.BorderSizePixel = 0
-mainFrame.Parent = screenGui
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 300, 0, 200)
+Frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Frame.BorderSizePixel = 0
+Frame.Parent = ScreenGui
+Frame.Active = true
+Frame.Draggable = true -- permite arrastar o Frame segurando ele
 
--- Dragging functionality
-local dragging = false
-local dragInput, dragStart, startPos
+-- Versão Label
+local VersionLabel = Instance.new("TextLabel")
+VersionLabel.Size = UDim2.new(1, 0, 0, 20)
+VersionLabel.BackgroundTransparency = 1
+VersionLabel.TextColor3 = Color3.new(1, 1, 1)
+VersionLabel.Font = Enum.Font.SourceSansBold
+VersionLabel.TextSize = 18
+VersionLabel.Text = "Version: ".. tostring(Version)
+VersionLabel.Parent = Frame
 
-mainFrame.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = mainFrame.Position
+-- Base TextBox
+local BaseLabel = Instance.new("TextLabel")
+BaseLabel.Size = UDim2.new(0, 70, 0, 20)
+BaseLabel.Position = UDim2.new(0, 10, 0, 30)
+BaseLabel.BackgroundTransparency = 1
+BaseLabel.TextColor3 = Color3.new(1, 1, 1)
+BaseLabel.Font = Enum.Font.SourceSans
+BaseLabel.TextSize = 16
+BaseLabel.Text = "Base:"
+BaseLabel.Parent = Frame
 
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
+local BaseTextBox = Instance.new("TextBox")
+BaseTextBox.Size = UDim2.new(0, 150, 0, 25)
+BaseTextBox.Position = UDim2.new(0, 80, 0, 30)
+BaseTextBox.Text = ""
+BaseTextBox.PlaceholderText = "e.g. Base1"
+BaseTextBox.ClearTextOnFocus = false
+BaseTextBox.Parent = Frame
+
+-- Character TextBox
+local CharacterLabel = Instance.new("TextLabel")
+CharacterLabel.Size = UDim2.new(0, 70, 0, 20)
+CharacterLabel.Position = UDim2.new(0, 10, 0, 65)
+CharacterLabel.BackgroundTransparency = 1
+CharacterLabel.TextColor3 = Color3.new(1, 1, 1)
+CharacterLabel.Font = Enum.Font.SourceSans
+CharacterLabel.TextSize = 16
+CharacterLabel.Text = "Character:"
+CharacterLabel.Parent = Frame
+
+local CharacterTextBox = Instance.new("TextBox")
+CharacterTextBox.Size = UDim2.new(0, 150, 0, 25)
+CharacterTextBox.Position = UDim2.new(0, 80, 0, 65)
+CharacterTextBox.Text = ""
+CharacterTextBox.PlaceholderText = "e.g. NPC_1"
+CharacterTextBox.ClearTextOnFocus = false
+CharacterTextBox.Parent = Frame
+
+-- Steal Button
+local StealButton = Instance.new("TextButton")
+StealButton.Size = UDim2.new(0, 100, 0, 30)
+StealButton.Position = UDim2.new(0, 100, 0, 110)
+StealButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+StealButton.TextColor3 = Color3.new(1, 1, 1)
+StealButton.Font = Enum.Font.SourceSansBold
+StealButton.TextSize = 20
+StealButton.Text = "Steal"
+StealButton.Parent = Frame
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -35, 0, 5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseButton.TextColor3 = Color3.new(1, 1, 1)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextSize = 24
+CloseButton.Text = "X"
+CloseButton.Parent = Frame
+
+CloseButton.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
 end)
 
-mainFrame.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
-		dragInput = input
+-- Função do botão Steal
+StealButton.MouseButton1Click:Connect(function()
+	local baseName = BaseTextBox.Text
+	local charName = CharacterTextBox.Text
+
+	if baseName == "" or charName == "" then
+		warn("Please fill both Base and Character.")
+		return
 	end
-end)
 
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		local delta = input.Position - dragStart
-		mainFrame.Position = UDim2.new(
-			startPos.X.Scale,
-			startPos.X.Offset + delta.X,
-			startPos.Y.Scale,
-			startPos.Y.Offset + delta.Y
-		)
-	end
-end)
-
--- Close button
-local closeButton = Instance.new("TextButton")
-closeButton.Size = UDim2.new(0, 30, 0, 30)
-closeButton.Position = UDim2.new(1, -35, 0, 5)
-closeButton.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
-closeButton.Text = "X"
-closeButton.TextColor3 = Color3.new(1, 1, 1)
-closeButton.Parent = mainFrame
-
-closeButton.MouseButton1Click:Connect(function()
-	screenGui:Destroy()
-end)
-
--- Base label + input
-local baseLabel = Instance.new("TextLabel")
-baseLabel.Size = UDim2.new(1, -20, 0, 25)
-baseLabel.Position = UDim2.new(0, 10, 0, 40)
-baseLabel.BackgroundTransparency = 1
-baseLabel.Text = "Base (Base1 to Base4):"
-baseLabel.TextColor3 = Color3.new(1, 1, 1)
-baseLabel.TextXAlignment = Enum.TextXAlignment.Left
-baseLabel.Parent = mainFrame
-
-local baseInput = Instance.new("TextBox")
-baseInput.Size = UDim2.new(1, -20, 0, 30)
-baseInput.Position = UDim2.new(0, 10, 0, 65)
-baseInput.ClearTextOnFocus = false
-baseInput.Text = "Base1"
-baseInput.Parent = mainFrame
-
--- Character label + input
-local charLabel = Instance.new("TextLabel")
-charLabel.Size = UDim2.new(1, -20, 0, 25)
-charLabel.Position = UDim2.new(0, 10, 0, 105)
-charLabel.BackgroundTransparency = 1
-charLabel.Text = "Character (NPC ID):"
-charLabel.TextColor3 = Color3.new(1, 1, 1)
-charLabel.TextXAlignment = Enum.TextXAlignment.Left
-charLabel.Parent = mainFrame
-
-local charInput = Instance.new("TextBox")
-charInput.Size = UDim2.new(1, -20, 0, 30)
-charInput.Position = UDim2.new(0, 10, 0, 130)
-charInput.ClearTextOnFocus = false
-charInput.Text = "1"
-charInput.Parent = mainFrame
-
--- Button to copy script
-local copyButton = Instance.new("TextButton")
-copyButton.Size = UDim2.new(1, -20, 0, 40)
-copyButton.Position = UDim2.new(0, 10, 1, -50)
-copyButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-copyButton.Text = "Copy Script"
-copyButton.TextColor3 = Color3.new(1, 1, 1)
-copyButton.Parent = mainFrame
-
--- Function to generate and copy the script string
-copyButton.MouseButton1Click:Connect(function()
-	local baseName = baseInput.Text
-	local npcId = charInput.Text
-
-	local scriptString = [[
-local args = {
-	workspace:WaitForChild("]] .. baseName .. [["):WaitForChild("NPC_]] .. npcId .. [[")
-}
-game:GetService("ReplicatedStorage"):WaitForChild("RemoveEvents"):WaitForChild("Drop"):FireServer(unpack(args))
-]]
-
-	-- Copiar para área de transferência
-	local success, err = pcall(function()
-		setclipboard(scriptString)
-	end)
-
-	if success then
-		copyButton.Text = "Copied!"
-		task.delay(2, function()
-			copyButton.Text = "Copy Script"
-		end)
-	else
-		copyButton.Text = "Failed to copy"
-		warn("Clipboard error:", err)
-	end
+	local args = {
+		"Grab",
+		game.Workspace:WaitForChild(baseName):WaitForChild(charName),
+		false,
+		true
+	}
+	game:GetService("ReplicatedStorage"):WaitForChild("RemoveEvents"):WaitForChild("NPCDecision"):FireServer(unpack(args))
 end)
