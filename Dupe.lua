@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TeleportService = game:GetService("TeleportService")
 
 local player = Players.LocalPlayer
 
@@ -35,7 +34,7 @@ titleBar.Parent = mainFrame
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Text = "Place Item GUI"
-titleLabel.Size = UDim2.new(1, -80, 1, 0)
+titleLabel.Size = UDim2.new(1, -140, 1, 0)  -- deixa espaço pros botões à direita
 titleLabel.BackgroundTransparency = 1
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.Font = Enum.Font.SourceSansBold
@@ -68,7 +67,7 @@ end)
 local closeButton = Instance.new("TextButton")
 closeButton.Text = "X"
 closeButton.Size = UDim2.new(0, 30, 1, 0)
-closeButton.Position = UDim2.new(1, -30, 0, 0)
+closeButton.Position = UDim2.new(1, -35, 0, 0) -- ajustei pra não colar no limite
 closeButton.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
 closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeButton.Font = Enum.Font.SourceSansBold
@@ -78,6 +77,17 @@ closeButton.Parent = titleBar
 closeButton.MouseButton1Click:Connect(function()
     screenGui:Destroy()
 end)
+
+-- List Button (à esquerda do título)
+local listButton = Instance.new("TextButton")
+listButton.Size = UDim2.new(0, 80, 0, 25)
+listButton.Position = UDim2.new(0, 5, 0, 2)
+listButton.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+listButton.Text = "List"
+listButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+listButton.Font = Enum.Font.SourceSansBold
+listButton.TextSize = 18
+listButton.Parent = titleBar
 
 -- Helper to create labeled textbox
 local function createLabeledTextBox(parent, labelText, pos)
@@ -107,8 +117,8 @@ end
 
 -- Input Fields
 local nameBox = createLabeledTextBox(mainFrame, "Object Name:", UDim2.new(0, 10, 0, 40))
-local pos1Box = createLabeledTextBox(mainFrame, "Position 1 (x,y):", UDim2.new(0, 10, 0, 75))
-local pos2Box = createLabeledTextBox(mainFrame, "Position 2 (x,y):", UDim2.new(0, 10, 0, 110))
+local pos1Box = createLabeledTextBox(mainFrame, "Position 1:", UDim2.new(0, 10, 0, 75))
+local pos2Box = createLabeledTextBox(mainFrame, "Position 2:", UDim2.new(0, 10, 0, 110))
 local rotBox = createLabeledTextBox(mainFrame, "Rotation:", UDim2.new(0, 10, 0, 145))
 
 -- Execute Button
@@ -121,17 +131,6 @@ execButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 execButton.Font = Enum.Font.SourceSansBold
 execButton.TextSize = 18
 execButton.Parent = mainFrame
-
--- List Button
-local listButton = Instance.new("TextButton")
-listButton.Size = UDim2.new(0, 100, 0, 30)
-listButton.Position = UDim2.new(1, -110, 0, 5)
-listButton.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
-listButton.Text = "List"
-listButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-listButton.Font = Enum.Font.SourceSansBold
-listButton.TextSize = 18
-listButton.Parent = titleBar
 
 -- List Frame (hidden by default)
 local listFrame = Instance.new("Frame")
@@ -201,32 +200,15 @@ listButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Execute action and rejoin
+-- Execute action (without rejoin)
 execButton.MouseButton1Click:Connect(function()
     local name = nameBox.Text
-    local pos1Str = pos1Box.Text
-    local pos2Str = pos2Box.Text
+    local pos1 = pos1Box.Text
+    local pos2 = pos2Box.Text
     local rot = tonumber(rotBox.Text) or 0
 
-    if name == "" or pos1Str == "" or pos2Str == "" then
+    if name == "" or pos1 == "" or pos2 == "" then
         warn("Please fill all fields!")
-        return
-    end
-
-    -- Parse positions from string "x,y"
-    local function parsePos(str)
-        local x, y = str:match("([^,]+),([^,]+)")
-        if x and y then
-            return Vector2.new(tonumber(x), tonumber(y))
-        end
-        return nil
-    end
-
-    local pos1 = parsePos(pos1Str)
-    local pos2 = parsePos(pos2Str)
-
-    if not pos1 or not pos2 then
-        warn("Positions must be in format: x,y")
         return
     end
 
@@ -242,13 +224,11 @@ execButton.MouseButton1Click:Connect(function()
 
     placeItemEvent:FireServer(unpack(args))
 
-    -- Disable the button so user cannot spam
+    -- Feedback
+    execButton.Text = "Executed!"
     execButton.Active = false
-    execButton.Text = "Executing..."
-
     task.delay(2, function()
-        -- Teleport back to the same place (rejoin)
-        local placeId = game.PlaceId
-        TeleportService:Teleport(placeId, player)
+        execButton.Text = "Execute"
+        execButton.Active = true
     end)
 end)
