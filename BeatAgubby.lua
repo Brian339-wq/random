@@ -23,17 +23,16 @@ local OriginalFireServer = GasUse.FireServer
 -- Variável para controle do bloqueio
 local GasUseBlocked = false
 
--- Função BlockRemote para GasUse
+-- Função BlockRemote segura para GasUse
 local function BlockGasUse(block)
-    if block then
-        GasUseBlocked = true
+    GasUseBlocked = block
+    if GasUseBlocked then
         GasUse.FireServer = function(...)
-            warn("Bloqueado: alguém tentou usar GasUse!")
-            -- opcional: printar argumentos
-            -- print(...)
+            pcall(function()
+                warn("Bloqueado: alguém tentou usar GasUse!")
+            end)
         end
     else
-        GasUseBlocked = false
         GasUse.FireServer = OriginalFireServer
     end
 end
@@ -105,12 +104,14 @@ Tab:CreateToggle({
    end,
 })
 
--- Toggle AntigasUsage (BlockRemote estilo RSpy)
+-- Toggle AntigasUsage (BlockRemote seguro)
 Tab:CreateToggle({
    Name = "Anti Gas Usage (RemoteBlock)",
    CurrentValue = false,
    Flag = "GasToggle",
    Callback = function(Value)
-      BlockGasUse(Value)
+      pcall(function()
+          BlockGasUse(Value)
+      end)
    end,
 })
