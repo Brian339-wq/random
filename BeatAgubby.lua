@@ -20,6 +20,24 @@ local GasUse = ReplicatedStorage.Networking.Server.RemoteEvents.AmmoEvents.GasUs
 -- Guardar função original do GasUse
 local OriginalFireServer = GasUse.FireServer
 
+-- Variável para controle do bloqueio
+local GasUseBlocked = false
+
+-- Função BlockRemote para GasUse
+local function BlockGasUse(block)
+    if block then
+        GasUseBlocked = true
+        GasUse.FireServer = function(...)
+            warn("Bloqueado: alguém tentou usar GasUse!")
+            -- opcional: printar argumentos
+            -- print(...)
+        end
+    else
+        GasUseBlocked = false
+        GasUse.FireServer = OriginalFireServer
+    end
+end
+
 -- Rayfield
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
@@ -87,18 +105,12 @@ Tab:CreateToggle({
    end,
 })
 
--- Toggle AntigasUsage (bloqueio total GasUse)
+-- Toggle AntigasUsage (BlockRemote estilo RSpy)
 Tab:CreateToggle({
    Name = "Anti Gas Usage (RemoteBlock)",
    CurrentValue = false,
    Flag = "GasToggle",
    Callback = function(Value)
-      if Value then
-         -- Bloquear todas as chamadas
-         GasUse.FireServer = function() end
-      else
-         -- Restaurar função original
-         GasUse.FireServer = OriginalFireServer
-      end
+      BlockGasUse(Value)
    end,
 })
